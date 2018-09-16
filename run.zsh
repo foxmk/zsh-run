@@ -16,7 +16,7 @@ function _get_commands_files {
         local -a files
         local -a local_commands_files
         local global_commands_file default_commands_file
-        
+
         default_commands_file="$HOME/.commands.json"
         global_commands_file="${ZZZ_COMMANDS_FILE:-$default_commands_file}"
 
@@ -45,7 +45,7 @@ function _get_jq_path {
                 json_path="."
         else
                 local -a args_with_dot
-                
+
                 for i in ${arguments[@]}; do
                         args_with_dot+=".$i"
                 done
@@ -69,7 +69,7 @@ function _get_jq_merge_function {
 function _get_args {
         local -a result
         local -a command_files
-        
+
         command_files=($(_get_commands_files))
 
         if [ ${#command_files[@]} -eq 0 ]; then
@@ -77,7 +77,7 @@ function _get_args {
         else
                 cmd="$(which jq) -s -r '$(_get_jq_merge_function ${#command_files[@]}) | $(_get_jq_path $@) | keys | .[]' ${command_files[@]}"
                 result=("${(@f)$(eval $cmd 2>/dev/null)}")
-                
+
                 echo $result
         fi
 }
@@ -85,34 +85,55 @@ function _get_args {
 function _get_cmd {
         local result
         local -a command_files
-        
+
         command_files=($(_get_commands_files))
- 
+
         if [ ${#command_files[@]} -eq 0 ]; then
                 echo ""
         else
                 cmd="$(which jq) -s -r '$(_get_jq_merge_function ${#command_files[@]}) | $(_get_jq_path $@)' ${command_files[@]}"
                 result="$(eval $cmd 2>/dev/null)"
-                
+
                 echo $result
-        fi       
+        fi
+}
+
+function _get_command_paths {
+        local -a command_files=( $(_get_commands_files) )
+
+        if [ ${#command_files[@]} -eq 0 ]; then
+                echo ""
+        else
+                local cmd="$(which jq) -s -r '$(_get_jq_merge_function ${#command_files[@]}) | $(_get_jq_path $@) | paths(scalars) | join(\" \")' ${command_files[@]}"
+                local -a result=( ${(f)"$( eval $cmd )"} )
+                echo ${(j:\n:)result[@]}
+        fi
 }
 
 function _get_zzz_comp {
         local -a args
-        
+
         args=($(_get_args ${words[@]:1}))
 
         _describe -t commands "commands" args
 }
 
 function zzz {
-        local cmd
-        
-        cmd=$(_get_cmd $@)
-        
-        echo $cmd
-        eval $cmd
+        local -a possible_paths=( ${(f)"$(_get_command_paths $@)"} )
+
+        if [ ${#possible_paths[@]} -ne 0 ] ; then
+                echo Possible paths:
+
+                local _path
+                for _path in ${possible_paths[@]} ; do
+                        local cmd=$(_get_cmd ${(s: :)_path})
+                        echo $_path: $cmd
+                done
+        else
+                local cmd=$(_get_cmd $@)
+                echo $cmd
+                # eval $cmd
+        fi
 }
 
 if ! jq_loc="$(type -p "$(which jq)")" || [[ -z $jq_loc ]]; then
