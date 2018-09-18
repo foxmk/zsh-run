@@ -110,7 +110,7 @@ function _get_command_paths {
         fi
 }
 
-function _get_zzz_comp {
+function _zsh_run_comp {
         local -a args
 
         args=($(_get_args ${words[@]:1}))
@@ -118,7 +118,7 @@ function _get_zzz_comp {
         _describe -t commands "commands" args
 }
 
-function zzz {
+function _zsh_run {
         local -a possible_paths=( ${(f)"$(_get_command_paths $@)"} )
 
         if [ ${#possible_paths[@]} -ne 0 ] ; then
@@ -132,12 +132,17 @@ function zzz {
         else
                 local cmd=$(_get_cmd $@)
                 echo $cmd
-                # eval $cmd
+                eval $cmd
         fi
 }
 
+local default_zsh_run_cmd=run
+local zsh_run_cmd="${ZSH_RUN_CMD:-$default_zsh_run_cmd}"
+
+alias $zsh_run_cmd=_zsh_run
+
 if ! jq_loc="$(type -p "$(which jq)")" || [[ -z $jq_loc ]]; then
-        echo "jq is required for zzz completion. Please install jq"
+        echo "jq is required for zsh-run completion. Please install jq"
 else
-        compdef _get_zzz_comp zzz
+        compdef _zsh_run_comp $zsh_run_cmd
 fi
