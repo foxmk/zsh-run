@@ -2,6 +2,10 @@
 
 Nested aliases from JSON file for `zsh`. For `bash`, consider using [bishop](https://github.com/stuartervine/bishop)
 
+## Demo
+
+[![asciicast](https://asciinema.org/a/201920.png)](https://asciinema.org/a/201920)
+
 ## Requirements
 
 `zsh-run` requires [jq](https://stedolan.github.io/jq/) to parse JSON files.
