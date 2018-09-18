@@ -92,3 +92,7 @@ Command to invoke `zsh-run`. Default: `run`
 ### `ZSH_RUN_COMMANDS_FILE`
 
 Global file with aliases. Default: `$HOME/.commands.json`
+
+### `ZSH_PRINT_COMMAND`
+
+If `true` prints command before executing. Possible values: `true` or `false`. Default: `true`

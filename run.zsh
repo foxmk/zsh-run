@@ -131,7 +131,12 @@ function _zsh_run {
                 done
         else
                 local cmd=$(_get_cmd $@)
-                echo $cmd
+
+                local zsh_print_cmd=${ZSH_RUN_PRINT_COMMAND:-true}
+                if [[ $zsh_print_cmd = "true" ]] ; then
+                        echo $cmd
+                fi
+
                 eval $cmd
         fi
 }
