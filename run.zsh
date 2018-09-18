@@ -18,7 +18,7 @@ function _get_commands_files {
         local global_commands_file default_commands_file
 
         default_commands_file="$HOME/.commands.json"
-        global_commands_file="${ZZZ_COMMANDS_FILE:-$default_commands_file}"
+        global_commands_file="${ZSH_RUN_COMMANDS_FILE:-$default_commands_file}"
 
         if [[ -s $global_commands_file ]]; then
                 files+=$global_commands_file
